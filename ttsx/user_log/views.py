@@ -6,39 +6,44 @@ from hashlib import sha1
 from models import *
 import datetime
 from name_log import *  #验证是否登陆装饰器包
+from user_goods.models import GoodsInfo
+from user_order.models import *
+from django.core.paginator import Paginator
 
 # Create your views here.
 
 
 def register(request):
-    context = {'title':'注册','top':'0'}
+    '''项目注册'''
+    context = {'title':'注册','top':'0'}  #传title，默认值，不为0执行另一个逻辑
     return render(request,'user_log/register.html',context)
 
 
 def register_handle(request):
-    post = request.POST
-    uname = post.get('user_name')
+    '''注册管理'''
+    post = request.POST  #获取request的POST属性
+    uname = post.get('user_name') #获取input值
     upwd = post.get('user_pwd')
     umail = post.get('user_email')
     #sha1加密
     s1 = sha1()
     s1.update(upwd)
     upwd_sha1 = s1.hexdigest()
-    # 存到数据库
+
     user = UserInfo()
-    user.uname = uname
+    user.uname = uname   # 存到数据库
     user.upwd = upwd_sha1
     user.umail = umail
     user.save()
 
-    return redirect('/user/login/')
+    return redirect('/user/login/') #注册成功中定向到登陆页
 
 
 def register_valid(request):
-    uname = request.GET.get('uname')
-    result = UserInfo.objects.filter(uname=uname).count()
+    uname = request.GET.get('uname')  #获取当前用户名
+    result = UserInfo.objects.filter(uname=uname).count()   #查看name总数
     context = {'valid':result}
-    return JsonResponse(context)
+    return JsonResponse(context)  #返回Json数据
 
 
 
@@ -47,6 +52,13 @@ def login(request):
     return render(request,'user_log/login.html',context)
 
 
+def islogin(request):
+    result = 0
+    if request.session.has_key('uid'):
+        result = 1
+    return JsonResponse({'islogin':result})
+
+# noinspection SpellCheckingInspection
 def login_handle(request):
     post = request.POST
     uname = post.get('user_name')
@@ -83,12 +95,34 @@ def login_handle(request):
 def center(request):
 
     user = UserInfo.objects.get(pk=request.session['uid'])
-    context = {'title':'用户中心','user':user}
+    gids = request.COOKIES.get('goods_ids','').split(',')
+    gids.pop()
+    glist = []
+    for gid in gids:
+        glist.append(GoodsInfo.objects.get(id = gid))
+    context = {'title':'用户中心','user':user,'glist':glist}
     return render(request,'user_log/center.html',context)
 
 @login_valid
 def order(request):
-    context = {'title': '用户中心'}
+    pindex = int(request.GET.get('pindex', '1'))
+    uid = request.session.get('uid')
+    order_list = OrderMain.objects.filter(user_id=uid).order_by('-order_date')
+    paginator = Paginator(order_list,1)
+    order_page = paginator.page(pindex)
+
+    #分页
+    page_list = []
+    if paginator.num_pages < 5:
+        page_list = paginator.page_range
+    elif order_page.number <= 2:
+        page_list = range(1, 6)
+    elif order_page.number > paginator.num_pages -1:
+        page_list = range( paginator.num_pages - 4, paginator.num_pages + 1)
+    else:
+        page_list = range(pindex -2, pindex +3)
+
+    context = {'title': '用户中心','order_page':order_page,'page_list':page_list}
     return render(request, 'user_log/order.html', context)
 
 @login_valid

@@ -1,3 +1,5 @@
+
+<!--父继承类-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
@@ -6,12 +8,32 @@
 	<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
 	<link rel="stylesheet" type="text/css" href="/static/css/main.css">
 	<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+
+		<!--//$(function () {-->
+		<!--//	var iTop = $(document).scrollTop();-->
+
+		<!--//	if(iTop > 300)-->
+		<!--//	{-->
+		<!--//	    $('.totop').fadeIn();-->
+		<!--//	}-->
+			<!--else-->
+		<!--//	{-->
+		<!--//		$('.totop').fadeOut();-->
+		<!--//	}-->
+		<!--//	$('.totop').click(function () {-->
+		<!--//	    $('html,body').animate({'scrollTop':0});-->
+
+         <!--//   });-->
+      <!--//  });-->
+
     {%block head%} {%endblock head%}
+	<!--预留script，css，-->
 
 </head>
 <body>
 
 {%if top|default:'1' == '1'%}
+<!--接受默认值，当为1时，继承下面html-->
 	<div class="header_con">
 		<div class="header">
 			<div class="welcome fl">欢迎来到天天生鲜!</div>
@@ -35,22 +57,24 @@
 					<span>|</span>
 					<a href="/user/center/">用户中心</a>
 					<span>|</span>
-					<a href="../cart.html">我的购物车</a>
+					<a href="/cart/">我的购物车</a>
 					<span>|</span>
 					<a href="/user/order/">我的订单</a>
 				</div>
 			</div>
 		</div>
 	</div>
-
+	<!--到cart_show 为0时显示购物车-->
 	{%if cart_show|default:'0' == '0'%}
 
 	<div class="search_bar clearfix">
 		<a href="/" class="logo fl"><img src="/static/images/logo.png"></a>
-		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;{{title}}</div>
 		<div class="search_con fr">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
+			<form method="get" action="/search/" target="_blank">
+			<input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+			<input type="submit" class="input_btn fr"  value="搜索">
+			</form>
 		</div>
 	</div>
 
@@ -59,14 +83,28 @@
 	<div class="search_bar clearfix">
 		<a href="/" class="logo fl"><img src="/static/images/logo.png"></a>
 		<div class="search_con fl">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
+			<form method="get" action="/search/" target="_blank">
+			<input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+			<input type="submit" class="input_btn fr"  value="搜索">
+			</form>
 		</div>
 		<div class="guest_cart fr">
-			<a href="#" class="cart_name fl">我的购物车</a>
-			<div class="goods_count fl" id="show_count">1</div>
+			<a href="/cart/" class="cart_name fl">我的购物车</a>
+			<div class="goods_count fl" id="show_count">0</div>
 		</div>
 	</div>
+<script>
+$(function () {
+
+
+	if($('.login_btn').text().indexOf('登录') < 0)
+	{
+	    $.get('/cart/count',function (data) {
+			$('#show_count').html(data.cart_count);
+        })
+	}
+})
+</script>
 	{%endif%}
 
 
@@ -75,7 +113,9 @@
 {%block body%}
 
 {%endblock body%}
-	<div class="footer no-mp">
+
+	<div class="footer ">
+		<!--no-mp-->
 		<div class="foot_link">
 			<a href="#">关于我们</a>
 			<span>|</span>
@@ -88,6 +128,7 @@
 		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
 		<p>电话：010-****888    京ICP备*******8号</p>
 	</div>
+
 
 </body>
 </html>

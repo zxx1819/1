@@ -1,10 +1,34 @@
 {%extends 'user_goods/base.html'%}
 
-{%block head%} {%endblock head%}
+{%block head%}
+<script>
+    function add_cart(gid) {
+        $.get('/user/islogin',function (data) {
+            if(data.islogin)
+            {
+               $.get('/cart/add/',{'gid':gid},function (data) {
+                   if(data.isadd)
+                   {
+                       alert('购买成功')
+                   }
+                   else
+                   {
+                       alert('购买失败，请稍后重视')
+                   }
+               })
+
+            }
+            else
+            {
+                location.href='/user/login/';
+            }
+        });
+    }
+
+</script>
 
 
-
-
+{%endblock head%}
 {%block detail%}
 
 	<div class="breadcrumb">
@@ -15,48 +39,49 @@
 {%endblock detail%}
 
 {%block reight%}
-		<div class="r_wrap fr clearfix">
-			<div class="sort_bar">
-				<a href="#" class="active">默认</a>
-				<a href="#">价格</a>
-				<a href="#">人气</a>
-			</div>
-
-
+    <div class="r_wrap fr clearfix">
+        <div class="sort_bar">
+				<a href="/list{{t1.id}}_1_1/" {%if orderby == '1'%} class="active" {%endif%}>默认</a>
+				<a href="/list{{t1.id}}_1_2/?desc={%if desc == '1'%}0{%else%}1{%endif%}" {%if orderby == '2'%} class="active" {%endif%}>价格</a>
+				<a href="/list{{t1.id}}_1_3/" {%if orderby == '3'%} class="active" {%endif%}>人气</a>
+        </div>
 
 			<ul class="goods_type_list clearfix">
-                {%for n in page%}
+                {%for g in page%}
                 <li>
-					<a href="{{n.id}}"><img src="/static/{{n.gpic}}"></a>
-					<h4><a href="{{n.id}}">{{n.gtitle}}</a></h4>
+					<a href="/{{g.id}}/"><img src="/static/{{g.gpic}}"></a>
+					<h4><a href="/{{g.id}}/">{{g.gtitle}}</a></h4>
 					<div class="operate">
-						<span class="prize">￥{{n.gpirce}}</span>
-						<span class="unit">{{n.gpirce}}/{{n.gunit}}</span>
-						<a href="#" class="add_goods" title="加入购物车"></a>
+						<span class="prize">￥{{g.gprice}}</span>
+						<span class="unit">{{g.gprice}}/{{g.gunit}}</span>
+						<a href="javascript:add_cart({{g.id}});" class="add_goods" title="加入购物车"></a>
 					</div>
 				</li>
                 {%endfor%}
-
 			</ul>
 
 			<div class="pagenation">
                 {%if page.has_previous%}
-				<a href="/list{{t1.id}}_{{page.number|add:-1}}/"><上一页</a>
+                <a href="/list{{t1.id}}_1_{{orderby}}/?desc={{desc}}">首页</a>
+				<a href="/list{{t1.id}}_{{page.number|add:-1}}_{{orderby}}/?desc={{desc}}"><上一页</a>
                 {%endif%}
-                {%for pindex in page.paginator.page_range%}
-                {%if pindex == page.number%}
-				<a href="#" class="active">{{pindex}}</a>
-                {%else%}
-                <a href="/list{{t1.id}}_{{pindex}}/" >{{pindex}}</a>
 
-                {%endif%}
-                {%endfor%}
+                    {%for pindex in page_range %}
+                    {%if pindex == page.number%}
+                    <a href="#" class="active">{{pindex}}</a>
+                    {%else%}
+                    <a href="/list{{t1.id}}_{{pindex}}_{{orderby}}/?desc={{desc}}" >{{pindex}}</a>
+                    {%endif%}
+                    {%endfor%}
+
+
 
                 {%if page.has_next%}
-				<a href="/list{{t1.id}}_{{page.number|add:1}}">下一页></a>
+				<a href="/list{{t1.id}}_{{page.number|add:1}}_{{orderby}}/?desc={{desc}}">下一页></a>
+                <a href="/list{{t1.id}}_{{page.paginator.num_pages}}_{{orderby}}/?desc={{desc}}">末页</a>
                 {%endif%}
-			</div>
-		</div>
-	</div>
 
+			</div>
+
+	</div>
 {%endblock reight%}

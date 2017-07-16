@@ -1,31 +1,80 @@
 {%extends 'user_goods/base.html'%}
 {%block head%}
 	<script type="text/javascript">
+        $(function () {
+           $('#add_cart').click(function () {
+               $.get('/user/islogin',function (data) {
+                   if(data.islogin == 1)
+                   {
+                       gid = $('#gid').val();
+                       count = $('.num_show').val();
+                       $.get('/cart/add/',{'gid':gid,'count':count},function (data) {
+                           if(data.isadd)
+                           {
+							var $add_x = $('#add_cart').offset().top;
+							var $add_y = $('#add_cart').offset().left;
 
-		$(function () {
+							var $to_x = $('#show_count').offset().top;
+							var $to_y = $('#show_count').offset().left;
+
+							$(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'}).stop()
+                                .animate({'left': $to_y + 7, 'top': $to_x + 7}, "fast", function () {
+									$(".add_jump").fadeOut('fast', function () {
+									    $.get('/cart/count/',function (data) {
+                                            $('#show_count').html(data.cart_count);
+                                        });
+									});
+								});
+                           }
+                           else
+                           {
+                               alert('购买失败，请稍候重试');
+                           }
+                       });
+                   }
+                   else{
+                       location.href = '/user/login/';
+                   }
+               });
+           });
 
 
 
-			$('#add_cart').click(function(){
-			    var $add_x = $('#add_cart').offset().top;
-				var $add_y = $('#add_cart').offset().left;
+           $('.num_show').blur(function () {
+              num = parseInt($(this).val());
+              kucun = parseInt( $('#kucun').val());
+              if(num < 1)
+              {
+                  num = 1;
+              }
+              if(num > kucun)
+              {
+                  num = kucun;
+              }
+              if(isNaN(num))
+              {
+                  num = 1;
+              }
+              $(this).val(num);
+               var count = $('.num_show').val();
+              price = parseFloat( $('.show_pirze em').text());
+              total = price * count
+              $('.total em').text(total.toFixed(2) + '元');
+           });
+           $('.add').click(function () {
+              num = parseInt( $('.num_show').val());
+              num++;
+              $('.num_show').val(num).blur();
+           });
+           $('.minus').click(function () {
+              num = parseInt( $('.num_show').val());
+              num--;
+              $('.num_show').val(num).blur();
+           });
+        });
 
-				var $to_x = $('#show_count').offset().top;
-				var $to_y = $('#show_count').offset().left;
-
-				$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
-					$(".add_jump").stop().animate({
-						'left': $to_y+7,
-						'top': $to_x+7},
-						"fast", function() {
-							$(".add_jump").fadeOut('fast',function(){
-								$('#show_count').html(2);
-							});
-
-					});
-			})
-		});
 	</script>
+
 {%endblock head%}
 
 {%block detail%}
@@ -51,15 +100,17 @@
 			<div class="goods_num clearfix">
 				<div class="num_name fl">数 量：{{goods.gkucun}}</div>
 				<div class="num_add fl">
+                    <input type="hidden" id="gid" value="{{ goods.id }}">
 					<input type="text" class="num_show fl" value="1">
+					<input type="hidden" id="kucun" value="{{goods.gkucun}}">
 					<a href="javascript:;" class="add fr">+</a>
-					<a href="javascript:;" class="minus fr">-</a>	
-				</div> 
+					<a href="javascript:;" class="minus fr">-</a>
+				</div>
 			</div>
-			<div class="total">总价：<em>{{goods.gprice}}元</em></div>
+			<div class="total">总价：<em>{{ goods.gprice }}元</em></div>
 			<div class="operate_btn">
 				<a href="javascript:;" class="buy_btn">立即购买</a>
-				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>				
+				<a href="#" class="add_cart" id="add_cart">加入购物车</a>
 			</div>
 		</div>
 	</div>

@@ -39,6 +39,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'user_log',
     'user_goods',
+    'user_cart',
+    'haystack',
+    'tinymce',
+    'user_order',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -115,5 +119,11 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT=os.path.join(BASE_DIR,"static/goods")
 
-
-
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    }
+}
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 12

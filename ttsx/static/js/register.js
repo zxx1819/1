@@ -46,8 +46,9 @@ $(function(){
 		}
 		else
 		{
+			//接受 register_valid 返回的json数据,
 			$.get('/user/register_valid/',{'uname':$('#user_name').val()},function (data) {
-				if(data.valid == 1){
+				if(data.valid >= 1){
 					$('#user_name').next().html('用户名以存在').show();
 					error_name = true;
 				}
@@ -57,8 +58,7 @@ $(function(){
 				}
 
             });
-			$('#user_name').next().hide();
-			error_name = false;
+
 		}
 	}
 
@@ -130,9 +130,4 @@ $(function(){
 
 
 
-
-
-
-
-
-})
+});
